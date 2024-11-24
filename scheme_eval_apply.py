@@ -13,12 +13,12 @@ import scheme_forms
 
 def lookup_procedure(name, env):
     eval_procedure = None
-    for procedure in BUILTINS:
-        if procedure[0] == name:
-            eval_procedure = BuiltinProcedure(procedure[1], expect_env=procedure[3])
-            break
-    # if name == 'eval':
-    #     eval_procedure = BuiltinProcedure(scheme_eval, expect_env=True)
+    # for procedure in BUILTINS:
+    #     if procedure[0] == name:
+    #         eval_procedure = BuiltinProcedure(procedure[1], expect_env=procedure[3])
+    #         break
+    if name == 'eval':
+        eval_procedure = BuiltinProcedure(scheme_eval, expect_env=True)
     if eval_procedure == None:
         try:
             eval_procedure = env.lookup(name)
@@ -45,7 +45,7 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
         return env.lookup(expr)
     elif self_evaluating(expr):
         return expr
-    Pair(Pair('a', Pair(Pair('define', Pair('z', Pair(Pair('+', Pair('z', Pair(1, nil))), nil))), nil)), nil)
+    # Pair(Pair('a', Pair(Pair('define', Pair('z', Pair(Pair('+', Pair('z', Pair(1, nil))), nil))), nil)), nil)
     # ((lambda (x) (list x (list x))) ((lambda (x) (list x (list x)))))
     # Pair(Pair('lambda', 
     #           Pair(Pair('x', nil), 
@@ -103,13 +103,13 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
         try:
             if self_evaluating(eval_procedure):
                 if rest != nil:
-                    raise SchemeError("Invalid operands\n")
+                    raise SchemeError("Invalid operands")
                 return eval_procedure
             else:
                 return scheme_apply(eval_procedure, rest.map(scheme_eval_closure), env)
         except SchemeError:
-            raise SchemeError("I dont know what happened\n")
-            print("Error expr:", expr, eval_procedure, first, rest)
+            raise SchemeError("I dont know what happened")
+            # print("Error expr:", expr, eval_procedure, first, rest)
         # END PROBLEM 3
 
 def eval_all(expressions, env):

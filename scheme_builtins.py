@@ -140,6 +140,13 @@ def scheme_list(*vals):
         result = Pair(e, result)
     return result
 
+@builtin("enumerate")
+def scheme_enumerate(*vals):
+    result, num = nil, len(vals) - 1 
+    for e in reversed(vals):
+        result = Pair(Pair(num, Pair(e, nil)), result)
+        num = num - 1
+    return result
 
 @builtin("append")
 def scheme_append(*vals):
