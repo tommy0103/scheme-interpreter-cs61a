@@ -45,7 +45,7 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
         return env.lookup(expr)
     elif self_evaluating(expr):
         return expr
-
+    Pair(Pair('a', Pair(Pair('define', Pair('z', Pair(Pair('+', Pair('z', Pair(1, nil))), nil))), nil)), nil)
     # ((lambda (x) (list x (list x))) ((lambda (x) (list x (list x)))))
     # Pair(Pair('lambda', 
     #           Pair(Pair('x', nil), 
@@ -61,8 +61,20 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
     elif isinstance(first, Pair) and scheme_symbolp(first.first) and first.first in scheme_forms.SPECIAL_FORMS:
         result = scheme_forms.SPECIAL_FORMS[first.first](first.rest, env) # I don't know why I do this.
         if(isinstance(result, str)): # I don't know whether this will exist
-            eval_procedure = lookup_procedure(result, env)
-            return scheme_apply(eval_procedure, rest.map(scheme_eval_closure), env)
+            try:
+                # if(isinstance(env.lookup(result), Procedure)):
+                eval_procedure = lookup_procedure(result, env)
+                if isinstance(eval_procedure, Procedure):
+                    return scheme_apply(eval_procedure, rest.map(scheme_eval_closure), env)
+                elif rest == nil:
+                    return result
+                else:
+                    raise SchemeError("Invalid operator: {0}".format(result))
+            except SchemeError:
+                if rest == nil:
+                    return result
+                else:
+                    raise SchemeError("Invalid operator: {0}".format(result))
         if(isinstance(result, Procedure)):
             return scheme_apply(result, rest.map(scheme_eval_closure), env)
         raise SchemeError("Something wrong with the Special Form.")
@@ -88,8 +100,16 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
             eval_procedure = lookup_procedure(first, env)
         else:
             eval_procedure = first
-        # eval_procedure = lookup_procedure(first)
-        return scheme_apply(eval_procedure, rest.map(scheme_eval_closure), env)
+        try:
+            if self_evaluating(eval_procedure):
+                if rest != nil:
+                    raise SchemeError("Invalid operands\n")
+                return eval_procedure
+            else:
+                return scheme_apply(eval_procedure, rest.map(scheme_eval_closure), env)
+        except SchemeError:
+            raise SchemeError("I dont know what happened\n")
+            print("Error expr:", expr, eval_procedure, first, rest)
         # END PROBLEM 3
 
 def eval_all(expressions, env):
@@ -122,7 +142,11 @@ def eval_all(expressions, env):
 def scheme_apply(procedure, args, env):
     """Apply Scheme PROCEDURE to argument values ARGS (a Scheme list) in
     Frame ENV, the current environment."""
-    validate_procedure(procedure)
+    try:
+        validate_procedure(procedure)
+    except SchemeError:
+        print(procedure, args)
+        raise SchemeError("")
     if isinstance(procedure, BuiltinProcedure):
         # BEGIN PROBLEM 2
         "*** YOUR CODE HERE ***"

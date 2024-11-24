@@ -13,7 +13,8 @@ from scheme_builtins import *
 # the environment in which the form is to be evaluated.
 
 # Pair(Pair(Pair(Pair('f', Pair(Pair('+', Pair('x', Pair(1, nil))), nil)), nil), Pair(Pair('+', Pair('x', Pair(2, nil))), nil)), nil)
-Pair(Pair('mu', Pair(nil, Pair(Pair('lambda', Pair(Pair('y', nil), Pair(Pair('+', Pair('x', Pair('y', nil))), nil))), nil))), nil)
+Pair(Pair('mu', Pair(nil, Pair(Pair('lambda', Pair(Pair('y', nil), Pair(Pair('+', Pair('x', Pair('y', nil))), nil))), nil))),
+      nil)
 
 
 def do_define_form(expressions, env):
@@ -139,7 +140,15 @@ def do_and_form(expressions, env):
     False
     """
     # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
+    # "*** YOUR CODE HERE ***"
+    result = True
+    expr = expressions
+    while(expr != nil):
+        result = scheme_eval(expr.first, env)
+        if(is_scheme_false(result)):
+            return False
+        expr = expr.rest
+    return result
     # END PROBLEM 12
 
 
@@ -158,7 +167,15 @@ def do_or_form(expressions, env):
     6
     """
     # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
+    # "*** YOUR CODE HERE ***"
+    result = False
+    expr = expressions
+    while(expr != nil):
+        result = scheme_eval(expr.first, env)
+        if(is_scheme_true(result)):
+            return result
+        expr = expr.rest
+    return result
     # END PROBLEM 12
 
 
@@ -180,8 +197,14 @@ def do_cond_form(expressions, env):
         if is_scheme_true(test):
             # BEGIN PROBLEM 13
             "*** YOUR CODE HERE ***"
+            if clause.rest == nil:
+                if clause.first == 'else':
+                    return True
+                return test
+            return eval_all(clause.rest, env) 
             # END PROBLEM 13
         expressions = expressions.rest
+    return None
 
 
 def do_let_form(expressions, env):
@@ -206,6 +229,43 @@ def make_let_frame(bindings, env):
     names = vals = nil
     # BEGIN PROBLEM 14
     "*** YOUR CODE HERE ***"
+    while bindings != nil:
+        expr = bindings.first
+        if isinstance(expr, Pair):
+            # print(expr)
+            while isinstance(expr.first, Pair) and expr.rest == nil:
+                expr = expr.first
+                
+        name = expr.first
+        # val = expr.rest
+        # if isinstance(expr.rest, Pair) and expr.rest.rest == nil:
+        #     if(self_evaluating(expr.rest.first)):
+        #         val = expr.rest.first
+        #     elif scheme_symbolp(expr.rest.first):
+        #         val = env.lookup(expr.rest.first)
+        #     else:
+        #         val = scheme_eval(expr.rest, env)
+        # else:
+        #     val = scheme_eval(expr.rest, env)
+        if expr.rest == nil:
+            raise SchemeError("Invalid let.")
+        else:
+            # print(expr.rest)
+            val = scheme_eval(expr.rest, env)
+            
+        # validate_form(Pair(name, nil), 1, 1)
+        # validate_form(Pair(val, nil), 1, 1)
+        names = Pair(name, names)
+        vals = Pair(val, vals)  
+        # validate_form(vals, 1, 1)
+        # validate_form(names, 1, 1)
+        bindings = bindings.rest
+
+    validate_formals(names)
+    # validate_form(names, 1)
+    # validate_form(vals, 1)
+    # if len(names) != len(vals):
+
     # END PROBLEM 14
     return env.make_child_frame(names, vals)
 
