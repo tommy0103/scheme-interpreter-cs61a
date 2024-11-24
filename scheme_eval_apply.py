@@ -29,7 +29,7 @@ def lookup_procedure(name, env):
     return eval_procedure
 
 #  ((lambda (x) (list x (list (quote quote) x))) (quote (lambda (x) (list x (list (quote quote) x)))))
-Pair(Pair(Pair('f', Pair(Pair('+', Pair('x', Pair(1, nil))), nil)), nil), Pair(Pair('+', Pair('x', Pair(2, nil))), nil))
+# Pair(Pair(Pair('f', Pair(Pair('+', Pair('x', Pair(1, nil))), nil)), nil), Pair(Pair('+', Pair('x', Pair(2, nil))), nil))
 
 def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
     """Evaluate Scheme expression EXPR in Frame ENV.
