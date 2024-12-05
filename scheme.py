@@ -73,6 +73,7 @@ def create_global_frame():
     env.define('apply',
                BuiltinProcedure(complete_apply, True, 'apply'))
     env.define('undefined', None)
+    # env.define('enumerate', BuiltinProcedure(scheme_enumerate, True, 'enumerate'))
     add_builtins(env, BUILTINS)
     return env
 
